@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.1" blockDefault="#all">
+
+<xsd:element name="explain">
+  <xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="plan" type="PlanType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:element>
+
+<xsd:group name="TableType">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element ref="filter" minOccurs="0"/>
+    <xsd:element name="index-scan" type="IndexScanType" minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="JoinType">
+  <xsd:sequence>
+    <xsd:element name="join-method" type="joinAlgoType"/>
+    <xsd:element name="join-type" type="joinTypeType"/>
+    <xsd:element name="plan" type="PlanType" maxOccurs="2" minOccurs="2"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="UnionType">
+  <xsd:sequence>
+    <xsd:element name="plan" type="PlanType" minOccurs="2" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="MaterializeType">
+  <xsd:sequence>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="UniqueType">
+  <xsd:sequence>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="AggregateType">
+  <xsd:sequence>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>  
+
+<xsd:group name="SortType">
+  <xsd:sequence>
+    <xsd:element name="sort-key">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="LimitType">
+  <xsd:sequence>
+    <xsd:element name="type" type="LimitTypeEnum"/>
+    <xsd:element name="rows" type="xsd:integer"/>
+    <xsd:element name="offset" type="xsd:integer" minOccurs="0"/>
+    <xsd:element name="rows-percent" type="xsd:boolean" minOccurs="0"/>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:group name="FilterType">
+  <xsd:sequence>
+    <xsd:element ref="filter"/>
+    <xsd:element name="plan" type="PlanType"/>
+  </xsd:sequence>
+</xsd:group>
+
+<xsd:complexType name="PlanType">
+  <xsd:choice>
+    <xsd:group ref="TableType"/>
+    <xsd:group ref="JoinType"/>
+    <xsd:group ref="MaterializeType"/>
+    <xsd:group ref="UniqueType"/>
+    <xsd:group ref="SortType"/>
+    <xsd:group ref="LimitType"/>
+    <xsd:group ref="FilterType"/>
+    <xsd:group ref="UnionType"/>
+    <xsd:group ref="AggregateType"/>
+  </xsd:choice>
+  <xsd:attribute name="type" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+
+<xsd:complexType name="IndexScanType">
+    <xsd:attribute name="key" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:simpleType name="joinTypeType">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="inner"/>
+        <xsd:enumeration value="left"/>
+        <xsd:enumeration value="right"/>
+        <xsd:enumeration value="full"/>
+        <xsd:enumeration value="left anti"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="joinAlgoType">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="nestedloops"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="LimitTypeEnum">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="top"/>
+        <xsd:enumeration value="bottom"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:element name="filter" type="xsd:string"/>
+
+</xsd:schema>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

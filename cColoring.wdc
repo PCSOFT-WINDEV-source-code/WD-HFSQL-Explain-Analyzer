@@ -1,0 +1,1476 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cColoring
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x164db74802e8efe8
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  internal_properties : CAAAAAgAAAAb8HaVbu2AxmhlOEsF7scMqJh1jDZ8NwiBdFjFp1kQDo601eQGzl3hi75zdjkQ9yj1prQk+mEqpYrvtU9JOyszchghMZ30MvM=
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAABrYqpkz/0alQkKyz2Whm4zopwSGEX7CpGzbCKoZDOXvzyBlW2quf/79Es8IVMm1c4DJ03Lxu9sf8JnC+ipfZvuYEw6MC/EYhD4Ofeq2n5xKIYrTra4BAIt4OkYwORK1Q/YhONX2dzwsznLhywJHEYSCUBMzN6zMCDJThb/283kZw==
+     code : |1-
+      
+      // Structure representing a code marker 
+      // for the syntactic coloring
+      MARKER is Structure
+      	nPosition 		is int			// Position of the marker
+      	nLength		is int			// Length of the marker
+      	nMarker		is int			// Marker
+      	sReplacement	is string			// Replacement string
+      END
+      
+      // Structure representing the language to use for the coloring
+      LANGUAGE is Structure
+      	nMarker 		is int					// Type of elements (MARK_LANG_XXX)
+      	arrElements		is array of 0 strings		// List of affected elements
+      END
+      
+      // Structure representing a syntactic marker of the language
+      LANGUAGE_STRUCTURE is Structure
+      	sStartMarker	is string			// String indicating the beginning of the marker 
+      	sEndMarker	is string			// String indicating the end of the marker
+      END
+      
+      // Structure representing the style of a marker
+      STYLE is Structure
+      	sFont 	is string		// Font used
+      	nSize 	is int		// Size of the font
+      	bItalic 	is boolean		// Italic
+      	bBold		is boolean		// Bold
+      	bUnderlined	is boolean		// Underlined
+      	nColor	is int		// Color of the font
+      END
+      
+      // cColoring class
+      // Base class for generating the code lemmes required by the coloring
+      cColoring is Class
+      	
+      PROTECTED
+      	m_bufCode			is buffer					// Source code to analyze
+      	m_arrMarkers		is array of 0 Marker	// List of markers
+      	m_nPosition			is int					// Current position
+      	m_arrLanguage		is array of 0 LANGUAGE 	// Language elements
+      	m_bString			is boolean					// String in progress?
+      	m_nString			is int					// Type of marker for strings
+      	m_bComments		is boolean					// Comment in progress?
+      	m_nComment		is int					// Type of marker for comments
+      	m_nOutput			is int					// Type of output
+      	m_bLanguageFormatting	is boolean					// Flag indicating whether the language elements must be formatted like in the dictionary (case and accent)
+      	
+      	// Various elements of the language
+      	L_HYPHEN			is array of 0 LANGUAGE_STRUCTURE		// List of symbols for hyphenations
+      	L_COMMENT		is array of 0 LANGUAGE_STRUCTURE		// List of markers for comments
+      	L_STRING			is array of 0 LANGUAGE_STRUCTURE		// List of markers for strings
+      	L_PROPERTY			is array of 0 LANGUAGE_STRUCTURE		// List of markers for properties
+      	L_ESC				is string								// Escape character
+      	
+      	// Styles of language coloring
+      	S_SYMBOL			is STYLE		// Style of language symbols (for example (, ), =, ...)
+      	S_PROPERTY			is STYLE		// Style of language properties 
+      	S_FUNCTION			is STYLE		// Style of language functions 
+      	S_CONSTANT			is STYLE		// Style of language constants 
+      	S_VARIABLE			is STYLE		// Style of language variables 
+      	S_KEYWORD			is STYLE		// Style of language keywords 
+      	S_COMMENT		is STYLE		// Style of comments
+      	S_NUMERIC			is STYLE		// Style of digits and numbers
+      	S_STRING			is STYLE		// Style of strings
+      	S_ERROR			is STYLE		// Style of errors
+      	S_DEFAULT			is STYLE		// Default style
+      	
+      PRIVATE		
+      	// Header and footer
+      	HEADER 				is string
+      	FOOTER				is string
+      END
+      
+      
+      CONSTANT	
+      	
+      	// Type of output
+      	OUT_HTML				= 1		// HTML output
+      	OUT_RTF					= 2		// RTF output
+      	OUT_GXX					= 3 	// gXX output
+      	
+      	// Language elements
+      	MARK_LANG_SYMBOL		= 1		// Language symbol
+      	MARK_LANG_PROPERTY		= 5		// Language property
+      	MARK_LANG_FUNCTION		= 6		// Language function
+      	MARK_LANG_CONSTANT		= 7		// Language constant
+      	MARK_LANG_VARIABLE		= 8		// Language variable
+      	MARK_LANG_KEYWORD		= 9		// Language keyword
+      	
+      	// Various elements
+      	MARK_COMMENT		= 2		// Comment
+      	MARK_NUMERIC			= 3		// Numeric
+      	MARK_STRING				= 4		// String
+      	MARK_ERROR				= 10	// Error
+      	
+      	// Internal markers
+      	MARK_INTERNAL_CR			= "@@CR@@"
+      	
+      END
+     type : 131072
+  procedures :
+   -
+     name : Manufacturer
+     internal_properties : CAAAAAgAAACTKFmslf5t07c5fkvkWBKdXw7Z7rOAThxzaS/S5c9nBKVRLeUvDIdhlNHfHl73P8bQHklGY+8wVs8UxLQgSCCGNY1ZYCyZlvNe1EqEq00QqyFIJQsIJvlAkbBhphFNX+YJsPXTLv30Z8aKx31YhZY/+0HYbU6ifZlnjf1Fx3OJI8rgbb9B0uYOZDFcdog7sBh+9qhtgEYYzl9THAjFEVl7uxIfKnt1jKg1jvyIX0qFoN4osLQx8aq4XkJyq7QE5zNE/MmlrjiLPs3McWduQGz2AP+zizQkMLQqjElQejE064rko4Bkwcx+0XGEI5Mvj3Am1Wso802JE0Za60Y3vQtkAad8a1yNGGhyyoYkLHrHRAecvS4vTOGncWHNwsHCaVp9mhcFLSykW8AoGvIAXDXWqhWSeL9OKg4v2DlWo7VK/x7ddIk8WYbG5fGJew08jbPPRtLVfG/o
+     procedure_id : 1607142161955549160
+     type_code : 27
+     code : |1-
+      PROCEDURE Constructor(LOCAL bufCode is buffer = "")
+      
+      // Definition of the 'Lemme' word (source: Wikipedia):
+      // The lemme (or lexie, or lexical item) is the stand-alone unit making up the lexicon of a language. 
+      // It is a set of characters making up a semantic unit and that can constitute a dictionary entry.
+      
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Global variables to modify if overload
+      
+      // If no end marker is specified (""), the analyzer will consider the end of the line as end marker
+      // The start marker is mandatory.
+      // You have the ability to define several markers
+      
+      //					  [Startt1, 			End1],  [Startt2, 		End2], ...
+      :L_HYPHEN			= [["..."	, 			""	]]								// A start hyphenation with ... until the end of the line
+      :L_COMMENT		= [["//"	, 			""	], 	["/*"	, 			"*/"	]]		// A comment starts with // until the end of the line or enclosed between /* and */
+      :L_STRING			= [[""""	, 			""""	], 	["'"	, 			"'"	]]		// A string starts with " and ends with "
+      :L_PROPERTY		= [[".."	, 			""	]]								// A call to a property starts with .. until the end of the lemme
+      :L_ESC			= """"													// Escape character: "
+      
+      //:L_xxx are arrays of LANGUAGE_STRUCTURE structures. We use a declaration for more readability
+      // We could use the following syntax for each one of the different markers:
+      // stLANGUAGE_STRUCTURE is LANGUAGE_STRUCTURE
+      // stLANGUAGE_STRUCTURE:StartMarker = "..."
+      // stLANGUAGE_STRUCTURE:EndMarker   = ""
+      // ArrayAdd(:L_HYPHEN, stLANGUAGE_STRUCTURE)
+      // ...
+      
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+      // Style of coloring to modify if overload
+      
+      //					  Font, 		  Size, 	Italic, 	Bold, Underlined, Color
+      :S_DEFAULT			= ["Courier New"	, 9, 		False, 		False, False, 	DarkGreen]
+      :S_STRING			= ["Arial"			, 9, 		False, 		False, False, 	DarkMagenta]
+      :S_COMMENT		= ["Courier New"	, 9, 		False, 		False, False, 	DarkGray]
+      :S_CONSTANT		= ["Courier New"	, 9, 		True, 		False, False, 	LightBlue]
+      :S_ERROR			= ["Courier New"	, 9, 		False, 		False, False, 	DarkRed]
+      :S_FUNCTION			= ["Courier New"	, 9, 		False, 		False, False, 	LightBlue]
+      :S_KEYWORD			= ["Courier New"	, 9, 		False, 		False, False, 	Black]
+      :S_NUMERIC		= ["Courier New"	, 9, 		False, 		False, False, 	DarkMagenta]
+      :S_PROPERTY		= ["Courier New"	, 9, 		False, 		False, False, 	Black]
+      :S_SYMBOL			= ["Courier New"	, 9, 		False, 		False, False, 	Black]
+      :S_VARIABLE			= ["Courier New"	, 9, 		False, 		False, False, 	LightBlue]	
+      
+      //:S_xxx are STYLE structures. We use a declaration fro better readability
+      // We could use the following syntax for each one of the styles:
+      //:S_DEFAULT:Font 	= "Courier New"
+      //:S_DEFAULT:Size 	= 9
+      //:S_DEFAULT:Italic 	= False
+      //:S_DEFAULT:Bold		= False
+      //:S_DEFAULT:Underlined	= False
+      //:S_DEFAULT:Color	= DarkGreen
+      // ...
+      
+      // Default output mode
+      :m_nOutput = ::OUT_HTML
+      
+      // Stores the code to analyze
+      :SetCode(bufCode)
+      
+      // The formatting of the language elements is active by default
+      :SetLanguageFormatting(True)
+     type : 589824
+   -
+     name : Destructor
+     procedure_id : 1607142161955614696
+     type_code : 28
+     code : |1-
+      PROCEDURE Destructor()
+     type : 655360
+   -
+     name : SetCode
+     internal_properties : CAAAAAgAAAD+j5uXhHCJfvGaHUb0QEvAUzZzW4FEoFrhdHde79GWhO4swD4BhGd9BG1k4doZA/X/IGDyrNLJhDb3rM7G1ArmbSTlwWok5pL7sDKVuSqX/VTGA44BtWDb2lUzwPNB0/4eUQOukNCIH6AJyYlOef6fuixLN4pSGZIoOyciYXdN86R83U70zPL7yXiXRZUX55gC/zik8LFkyGgJUbYv5wHdnppzBA==
+     procedure_id : 1607142161955680232
+     type_code : 12
+     code : |1-
+      // Summary: Defines the code to analyze
+      // Syntax:
+      //SetCode ([<bufCode> is buffer])
+      //
+      // Parameters:
+      //	bufCode (buffer): Code to analyze
+      // Return value:
+      // 	None
+      //
+      PROCEDURE SetCode(LOCAL bufCode is buffer = "")
+      
+      // Stores the code to analyze
+      :m_bufCode = bufCode
+      
+      // Reset
+      :m_bComments = False
+      :m_nComment  = 0
+      :m_nPosition	 = 0
+      :m_bString		 = False
+      :m_nString		 = 0
+      ArrayDeleteAll(:m_arrMarkers)
+     type : 458752
+   -
+     name : GetCode
+     internal_properties : CAAAAAgAAACq/LpgPkYTEBJHAKhwYFpfIFB1SIP9jcS1tCpfPzE8WKSJ/aJShV/vG4kXqF1SYEJJJIyd01jFW26Ev8I9EMhSP0HFSRTRMF3J8r5+7HvHXY/B+KiD4tIyqSo7PLceDwXidCziCot64kNqm19mgDh0TGd0xwBxjedJ8pvsB+QVjWVE+7Ojloe1o1QMiGZ3gIiv8yI7Cw==
+     procedure_id : 1607142161955745768
+     type_code : 12
+     code : |1-
+      // Summary: Returns the code to analyze (defined by the SetCode method)
+      // Syntax:
+      //[ <Result> = ] GetCode ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	buffer: Code to analyze
+      //
+      PROCEDURE GetCode()
+      
+      RESULT :m_bufCode
+     type : 458752
+   -
+     name : SetLanguage
+     procedure_id : 1607142161955811304
+     type_code : 12
+     code : |1-
+      // Summary: Defines the language that will be used for the coloring
+      // Syntax:
+      //SetLanguage (<_Language_>)
+      //
+      // Parameters:
+      //	_Language_: Array ofcColoring:LANGUAGE
+      // Return value:
+      // 	None
+      //
+      PROCEDURE SetLanguage(_Language_)
+      
+      // Stores the language
+      :m_arrLanguage = _Language_
+     type : 458752
+   -
+     name : Coloring
+     internal_properties : CAAAAAgAAACq/LpgPkYTEBJHAKhwYFpfIFB1SIP9jcS1tCpfPzE8WKSJ/aJShV/vG4kXqF1SYEJJJIyd01jFW26Ev8I9EMhSP0HFSRTRMF3J8r5+7HvHXY/B+KiD4tIyqSo7PLceDwXidCziCot64kNqm19mgDh0TGd0xwBxjedJ8pvsB+QVjWVE+7Ojloe1o1QMiGZ3gIiv8yI7Cw==
+     procedure_id : 1607142161955876840
+     type_code : 12
+     code : |1-
+      // Summary: Performs the syntactic coloring of the code
+      // Syntax:
+      //[ <Result> = ] Coloring ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	buffer:     Formatted code
+      //
+      PROCEDURE Coloring()
+      
+      bufCode				is buffer
+      bufColorCode		is buffer
+      bufLine			is buffer
+      bufLineColor		is buffer
+      
+      // Loads the code
+      bufCode = :m_bufCode
+      IF bufCode ~= "" THEN RESULT bufColorCode
+      
+      // Replace the carriage returns
+      bufCode = Replace(bufCode, CR, Charact(10))
+      bufCode = Replace(bufCode, Charact(10), CR)
+      
+      // Replace the ";" by carriage returns
+      bufCode = Replace(bufCode, ";", ";" + CR)
+      
+      // Color the code line by line
+      FOR EACH string bufLine of bufCode separee by CR
+      	
+      	// If the line can be analyzed
+      	IF Length(StringFormat(bufLine, ccIgnoreSpace)) > 0 THEN
+      		
+      		// Color the line
+      		:LineColoring(bufLine, bufLineColor)
+      	ELSE
+      		
+      		// Nothing to color
+      		bufLineColor = ""
+      	END		
+      	
+      	// Fills the formatted code
+      	bufColorCode += bufLineColor + ::MARK_INTERNAL_CR
+      END
+      
+      SWITCH :m_nOutput
+      
+      	// gXX mode
+      	CASE ::OUT_GXX
+      		bufColorCode = :HEADER + Replace(bufColorCode, ::MARK_INTERNAL_CR, CR) 			+ :FOOTER
+      		
+      	// HTML mode
+      	CASE ::OUT_HTML
+      		bufColorCode = :HEADER + Replace(bufColorCode, ::MARK_INTERNAL_CR, "<br>" + CR) 	+ :FOOTER
+      		
+      	// RTF mode
+      	CASE ::OUT_RTF	
+      		bufColorCode = :HEADER + Replace(bufColorCode, ::MARK_INTERNAL_CR, "\par" + CR) 	+ :FOOTER
+      END
+      
+      RESULT bufColorCode
+     type : 458752
+   -
+     name : LineColoring
+     internal_properties : CAAAAAgAAAAzSB9cdXYA090CYOyKrhVO8Cb6E1jImBOvKa7zXxZVgdK8bRyF2FLOZ8tZV9W43HvxTUWxsERLpxD8qxrZHDm0l4yh/9eiGE25Py/QOgQueXdcfCpyn+XL6D+7ZselacDKtfeWntKCGa7zWz0Esxi1Wozjj2AU7S6E9wFsQ51DC3Lka4YKyg3UT/57gnk7RHUhj8/pqVcxPW3+xyiV0ctJYT9G258wNZULRc2mSvlNvWaJnqk=
+     procedure_id : 1607142161955942376
+     type_code : 12
+     code : |1-
+      // Summary: Performs the coloring of a code line
+      // Syntax:
+      //LineColoring (<bufLine> is buffer, <bufColorLine> is buffer)
+      //
+      // Parameters:
+      //	bufLine (buffer): Code line to analyze
+      //	bufColorLine (buffer): (output) Colored code line
+      // Return value:
+      // 	None
+      //
+      PROCEDURE PROTECTED VIRTUAL LineColoring(LOCAL bufLine is buffer, bufLineColor is buffer)
+      
+      nLemmeLength		is int = 1
+      nLemmePosition		is int = 1
+      stMarker			is a Marker
+      bufElement			is buffer
+      
+      // Reset
+      bufLineColor = ""
+      :m_nPosition	= 1
+      
+      // Clears the list of markers
+      ArrayDeleteAll(:m_arrMarkers)
+      
+      // Browse the line
+      WHILE nLemmeLength > 0
+      	
+      	// Analyze the lemme
+      	nLemmeLength = :LemmeAnalyze(bufLine[[nLemmePosition TO]])
+      	
+      	// Next position
+      	nLemmePosition += nLemmeLength
+      	:m_nPosition = nLemmePosition
+      END
+      
+      // Reset
+      nLemmePosition = 1
+      
+      // Convert for each marker
+      FOR EACH ELEMENT stMarker of :m_arrMarkers
+      	
+      	// Previous string
+      	bufLineColor += bufLine[[nLemmePosition TO stMarker:nPosition - 1]]
+      	
+      	// Defines the element that will be displayed
+      	IF :m_bLanguageFormatting = True THEN
+      		
+      		IF stMarker:sReplacement = "" THEN
+      			
+      			// Extract the marked string
+      			bufElement = bufLine[[stMarker:nPosition on stMarker:nLength]]
+      		ELSE
+      			
+      			// Use the replacement string
+      			bufElement = stMarker:sReplacement
+      		END	
+      		
+      	ELSE
+      		
+      		// Extract the marked string
+      		bufElement = bufLine[[stMarker:nPosition on stMarker:nLength]]
+      	END
+      	
+      	// Coloring
+      	bufLineColor += 	:ConversionMarker(stMarker, True) 	+ 
+      	bufElement 								+
+      	:ConversionMarker(stMarker, False)
+      	// Remainder
+      	nLemmePosition = stMarker:nPosition + stMarker:nLength
+      END
+      
+      // Rest of the string
+      bufLineColor += bufLine[[nLemmePosition TO]]
+     type : 458752
+   -
+     name : LemmeAnalyze
+     internal_properties : CAAAAAgAAADaPpmfWTdnUBbv4Ma085DpT5zczwUzFqWMFB3U9bJIY8EAKt4fglGDG7Vz0b2UHWng1wdTDQyU9IOoEHedurzDrsgKZ6QBQl9jxdtvrdUWPMMdsFU1+4MooHfq8oSNmwxWr9hUFot3JUI6Ay3VKlwGqNnVOghfIxLLn07xXp7hZ7fkNcxfOkIJs2t9rBihDu6IYAP3KK4WzGKS1ysxGcCc406CTLWzNwfj9hpgi/BOFHoUENK9nvpZBQeOlaVQG3BmfogRs91CYEPfbJ3Z8Bgu4fO9s9hsGk3g6G+kINaoWWh1QLB5RKBoYg==
+     procedure_id : 1607142161956007912
+     type_code : 12
+     code : |1-
+      // Summary: Analyzes a string to extract the lemmes
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyze (<bufLemmes> is buffer)
+      //
+      // Parameters:
+      //	bufLemmes (buffer): String containing the lemmes to extract
+      // Return value:
+      // 	Undefined type:           Length of the identified lemme
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyze(LOCAL bufLemmes is buffer)
+      
+      nLemmeLength		is int
+      nLemmePosition		is int
+      nLineEnd			is int
+      sCharacter			is string
+      
+      // Start from the first character
+      nLemmeLength = 0; nLemmePosition = 1
+      sCharacter = bufLemmes[[nLemmePosition]]
+      
+      // If it is an empty string
+      IF Length(sCharacter) = 0 _OR_ sCharacter IN ("", Charact(0)) THEN
+      	RESULT 0
+      END
+      
+      // Blank character?
+      IF sCharacter IN (" ", SPC, TAB) THEN
+      	
+      	// Read all the blank characters
+      	WHILE sCharacter IN (" ", SPC, TAB)
+      		
+      		// Increments the length of the lemme
+      		nLemmeLength ++; nLemmePosition ++
+      		
+      		// Next character
+      		sCharacter = bufLemmes[[nLemmePosition]]
+      	END
+      	
+      	// Returns the length
+      	RESULT nLemmeLength
+      END
+      
+      // In a comment block?
+      IF :m_bComments THEN
+      	
+      	// Read all the characters until we reach the end marker for comments
+      	WHILE NOT (sCharacter = :L_COMMENT[:m_nComment]:sEndMarker[[1]] _AND_ bufLemmes[[nLemmePosition + 1 on Length(:L_COMMENT[:m_nComment]:sEndMarker) - 1]] = :L_COMMENT[:m_nComment]:sEndMarker[[2 TO]])
+      		
+      		// Increments the length of the lemme
+      		nLemmeLength ++; nLemmePosition ++
+      		
+      		// Next character
+      		sCharacter = bufLemmes[[nLemmePosition]]
+      		IF sCharacter = "" THEN BREAK
+      	END
+      	
+      	// The end of the line was reached
+      	IF sCharacter = "" THEN
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_COMMENT, Length(bufLemmes))
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	ELSE
+      		
+      		// Adds the marker
+      		nLemmeLength += Length(:L_COMMENT[:m_nComment]:sEndMarker)
+      		:MarkerAdd(::MARK_COMMENT, Max(1, nLemmeLength))
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_LANG_SYMBOL, 1)
+      		
+      		// End of comment block
+      		:m_bComments = False
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      	
+      END
+      
+      // In a string block?
+      IF :m_bString THEN
+      	
+      	// Read all the characters until we reach the end marker for strings
+      	WHILE NOT (sCharacter = :L_STRING[:m_nString]:sEndMarker[[1]] _AND_ bufLemmes[[nLemmePosition + 1 on Length(:L_STRING[:m_nString]:sEndMarker) - 1]] = :L_STRING[:m_nString]:sEndMarker[[2 TO]])
+      		
+      		// Increments the length of the lemme
+      		nLemmeLength ++; nLemmePosition ++
+      		
+      		// Next character
+      		sCharacter = bufLemmes[[nLemmePosition]]
+      		IF sCharacter = "" THEN BREAK
+      	END
+      	
+      	// The end of the line was reached
+      	IF sCharacter = "" THEN
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_STRING, Length(bufLemmes))
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	ELSE
+      		
+      		IF :L_STRING[:m_nString]:sStartMarker <> :L_STRING[:m_nString]:sEndMarker THEN
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_STRING, (nLemmeLength))
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_LANG_SYMBOL, Length(:L_STRING[:m_nString]:sEndMarker))
+      			
+      			// Adds the length of the marker
+      			nLemmeLength += (Length(:L_STRING[:m_nString]:sEndMarker))			
+      		ELSE
+      			
+      			// Adds the length of the marker
+      			nLemmeLength += (Length(:L_STRING[:m_nString]:sStartMarker))				
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_STRING, nLemmeLength)				
+      		END
+      		
+      		// End of the multiline string
+      		:m_bString = False
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      	
+      END
+      
+      // Hyphenation?
+      FOR i = 1 _TO_ :L_HYPHEN..Occurrence
+      	IF sCharacter = :L_HYPHEN[i]:sStartMarker[[1]] _AND_ bufLemmes[[2 on Length(:L_HYPHEN[i]:sStartMarker) - 1]] = :L_HYPHEN[i]:sStartMarker[[2 TO]] THEN
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_LANG_SYMBOL, Length(:L_HYPHEN[i]:sStartMarker))
+      		
+      		// No end marker for an hyphenation
+      		// Therefore, take the end of the line
+      		nLineEnd = Length(bufLemmes[[Length(:L_HYPHEN[i]:sStartMarker) + 1 TO]])
+      		
+      		// No code must be found after an hyphenation, so we consider that is is comments
+      		:MarkerAdd(::MARK_COMMENT, nLineEnd)
+      		
+      		// Returns the length
+      		RESULT nLineEnd + Length(:L_HYPHEN[i]:sStartMarker)			
+      	END
+      END
+      
+      // Comment?
+      FOR i = 1 _TO_ :L_COMMENT..Occurrence 
+      	IF sCharacter = :L_COMMENT[i]:sStartMarker[[1]] _AND_ bufLemmes[[2 on Length(:L_COMMENT[i]:sStartMarker) - 1]] = :L_COMMENT[i]:sStartMarker[[2 TO]] THEN
+      		
+      		// No end marker
+      		IF :L_COMMENT[i]:sEndMarker <> "" THEN
+      			
+      			// The next line will be part of the comments
+      			:m_bComments = True
+      			:m_nComment  = i
+      			
+      			// Search for the end of the string
+      			LOOP
+      				
+      				// Increments the length of the lemme
+      				nLemmeLength ++; nLemmePosition ++
+      				
+      				// Next character
+      				sCharacter = bufLemmes[[nLemmePosition]]
+      				
+      			// Until the end marker of the string is found
+      			TO DO WHILE NOT (sCharacter = :L_COMMENT[:m_nComment]:sEndMarker[[1]] _AND_ bufLemmes[[nLemmePosition + 1 on Length(:L_COMMENT[:m_nComment]:sEndMarker) - 1]] = :L_COMMENT[:m_nComment]:sEndMarker[[2 TO]]) _AND_ sCharacter <> ""
+      			
+      			IF nLemmePosition < Length(bufLemmes) THEN
+      				:m_bComments = False
+      				
+      				// Position of the end of comment
+      				nLemmeLength += Length(:L_COMMENT[:m_nComment]:sEndMarker)
+      				nLineEnd = nLemmeLength	
+      			ELSE
+      				
+      				// Use the end of the line
+      				nLineEnd = Length(bufLemmes)	
+      			END
+      			
+      		ELSE
+      			
+      			// The next line will not be part of the comments
+      			:m_bComments = False
+      			:m_nComment  = 0
+      			
+      			// Use the end of the line
+      			nLineEnd = Length(bufLemmes)				
+      		END
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_COMMENT, nLineEnd)
+      		
+      		// Returns the length
+      		RESULT nLineEnd		
+      	END
+      END
+      
+      // Number?
+      IF :IsANumber(sCharacter) THEN
+      	
+      	// Analyzes the number
+      	nLemmeLength = :LemmeAnalyzeNumber(bufLemmes)
+      	
+      	// Adds the marker
+      	:MarkerAdd(::MARK_NUMERIC, nLemmeLength)
+      	
+      	// Returns the length
+      	RESULT nLemmeLength
+      END
+      
+      // Character string?
+      FOR i = 1 _TO_ :L_STRING..Occurrence 
+      	IF sCharacter = :L_STRING[i]:sStartMarker[[1]] _AND_ bufLemmes[[2 on Length(:L_STRING[i]:sStartMarker) - 1]] = :L_STRING[i]:sStartMarker[[2 TO]] THEN
+      		
+      		// Search for the end of the string
+      		LOOP
+      			
+      			// Increments the length of the lemme
+      			nLemmeLength ++; nLemmePosition ++
+      			
+      			// Next character
+      			sCharacter = bufLemmes[[nLemmePosition]]
+      			
+      			IF sCharacter = :L_ESC THEN
+      				// Increments the length of the lemme
+      				nLemmeLength +=2; nLemmePosition +=2
+      				
+      				// Next character
+      				sCharacter = bufLemmes[[nLemmePosition]]
+      			END
+      			
+      		// Until the end marker of the string is found
+      		TO DO WHILE NOT (sCharacter = :L_STRING[i]:sEndMarker[[1]] _AND_ bufLemmes[[nLemmePosition + 1 on Length(:L_STRING[i]:sEndMarker) - 1]] = :L_STRING[i]:sEndMarker[[2 TO]]) _AND_ sCharacter <> ""
+      		
+      		// The end of the line is reached
+      		IF sCharacter = "" THEN				
+      			:m_bString	= True			
+      			:m_nString	= i
+      		END
+      		
+      		IF :L_STRING[i]:sStartMarker <> :L_STRING[i]:sEndMarker THEN
+      			
+      			:MarkerAdd(::MARK_LANG_SYMBOL, Length(:L_STRING[i]:sStartMarker))
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_STRING, (nLemmeLength - 1))
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_LANG_SYMBOL, Length(:L_STRING[i]:sEndMarker))
+      			
+      			// Adds the length of the marker
+      			nLemmeLength += (Length(:L_STRING[i]:sEndMarker))	
+      			
+      		ELSE
+      			
+      			// Adds the length of the marker
+      			nLemmeLength += (Length(:L_STRING[i]:sStartMarker))				
+      			
+      			// Adds the marker
+      			:MarkerAdd(::MARK_STRING, nLemmeLength)				
+      		END
+      		
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      END
+      
+      // Property?
+      FOR i = 1 _TO_ :L_PROPERTY..Occurrence 
+      	IF sCharacter = :L_PROPERTY[i]:sStartMarker[[1]] _AND_ bufLemmes[[2 on Length(:L_PROPERTY[i]:sStartMarker) - 1]] = :L_PROPERTY[i]:sStartMarker[[2 TO]] THEN
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_LANG_SYMBOL, Length(:L_PROPERTY[i]:sStartMarker))
+      		
+      		// Analyzes the property
+      		nLemmeLength = :LemmeAnalyzeDelimitIdentifier(bufLemmes[[Length(:L_PROPERTY[i]:sStartMarker) + 1 TO]])
+      		
+      		// If no property was found
+      		IF nLemmeLength = 0 THEN
+      			
+      			// Returns the length of the marker
+      			RESULT Length(:L_PROPERTY[i]:sStartMarker)
+      		END
+      		
+      		// Adds the marker
+      		:MarkerAdd(::MARK_LANG_PROPERTY, nLemmeLength)
+      		
+      		// Returns the length
+      		RESULT nLemmeLength + Length(:L_PROPERTY[i]:sStartMarker)
+      	END
+      END
+      
+      // Processes the rest of the line
+      nLemmeLength = :LemmeAnalyzeIdentifier(bufLemmes)
+      
+      RESULT nLemmeLength
+     type : 458752
+   -
+     name : MarkerAdd
+     procedure_id : 1607142161956073448
+     type_code : 12
+     code : |1-
+      // Summary: Saves a marker at the current position
+      // Syntax:
+      //MarkerAdd (<nMarker> is int, <nLength> is int [, <sReplacement> is string])
+      //
+      // Parameters:
+      //	nMarker (integer): Type of marker to save
+      //	nLength (integer): Length of the marker
+      //	sReplacement (string): Replacement string to insert at the marker position
+      // Return value:
+      // 	None
+      //
+      PROCEDURE PROTECTED MarkerAdd(LOCAL nMarker is int, LOCAL nLength is int, LOCAL sReplacement is string = "")
+      
+      stMarker is a Marker
+      
+      // Defines the parameters of the marker
+      stMarker:nPosition 	= :m_nPosition
+      stMarker:nLength 	= nLength
+      stMarker:nMarker 	= nMarker
+      stMarker:sReplacement = sReplacement
+      
+      // Stores the marker
+      ArrayAdd(:m_arrMarkers, stMarker)
+      
+      // Next position
+      :m_nPosition += nLength
+     type : 458752
+   -
+     name : IsANumber
+     procedure_id : 1607142161956138984
+     type_code : 12
+     code : |1-
+      // Summary: Defines whether a character is numeric
+      // Syntax:
+      //[ <Result> = ] IsANumber (<sCharacter> is string)
+      //
+      // Parameters:
+      //	sCharacter (string): Character to analyze
+      // Return value:
+      // 	boolean:  True if the character is numeric
+      //
+      PROCEDURE IsANumber(LOCAL sCharacter is string)
+      
+      RESULT sCharacter IN ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+     type : 458752
+   -
+     name : LemmeAnalyzeNumber
+     internal_properties : CAAAAAgAAAAuQfMBhHBJvvHa3Qb0wIsAE3ZzzbGEZBJRpDcGU4mKAF4M7F7xpIMNvM0MIVZBx4FnEMRiJFqNxPanJKbCnH5afTSRGTJEwnI78BIFtcrjqWTGpaD3D8K1EOdlssnbrdR0z4UI1oo6kTYrg8OMMwilqBK1UWCUa6SujRE0r/nPAapC34Ca5iSlNwKhf2vhuf7in5gE0BHE6IipcVbPh2E9MCCjVA==
+     procedure_id : 1607142161956204520
+     type_code : 12
+     code : |1-
+      // Summary: Analyzes a lemme to extract a number
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyzeNumber (<bufLemme> is buffer)
+      //
+      // Parameters:
+      //	bufLemme (buffer): Lemme to analyze
+      // Return value:
+      // 	Undefined type:  Analyzed length
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyzeNumber(LOCAL bufLemme is buffer)
+      
+      // 0...
+      IF bufLemme[[1]] = "0" THEN
+      	
+      	// 0x...: Hexadecimal number
+      	IF bufLemme[[2]] IN ("x", "X") THEN
+      		
+      		// Analyzes an hexadecimal number
+      		RESULT :LemmeAnalyzeHexadecimalNumber(bufLemme[[3 TO]]) + 2
+      	END
+      	
+      END
+      
+      RESULT :LemmeAnalyzeDecimalNumber(bufLemme)
+     type : 458752
+   -
+     name : LemmeAnalyzeHexadecimalNumber
+     internal_properties : CAAAAAgAAADG6esZzEjx9rmStY4MeBO4++77SonsHEbbfuMcnVcMUkgSqt41ME9Jfie4R7x/bT81Yv4+LBLJgGQ9PABcCgAUG05PkT5oPtqVYgLvJ6j1M148TNOswnHq9RSURVoqThun8njHbzHl+m9UOhZlEtXQz9m4sCFLJqmDwiTbZDQ8zBkRcicDfb/+nJfULri0VolqJxCcSJlMcABRqR6Xz5n1SDhLPA==
+     procedure_id : 1607142161956270056
+     type_code : 12
+     code : |1-
+      // Summary: Extracts an hexadecimal number
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyzeHexadecimalNumber (<bufLemme> is buffer)
+      //
+      // Parameters:
+      //	bufLemme (buffer): Lemme to analyze
+      // Return value:
+      // 	integer:  Length of the extracted hexadecimal number
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyzeHexadecimalNumber(LOCAL bufLemme is buffer)
+      
+      nLemmeLength	is int = 0
+      nLemmePosition is int = 1
+      sCharacter	    is string
+      
+      // Extracts the first character
+      sCharacter = bufLemme[[nLemmePosition]]
+      
+      // As long as the character is an hexadecimal character
+      WHILE :IsANumber(sCharacter) _OR_ sCharacter IN ("a", "b", "d", "d", "e", "f", "A", "B", "D", "D", "E", "F")
+      	
+      	// Next character
+      	nLemmeLength ++; nLemmePosition ++
+      	sCharacter = bufLemme[[nLemmePosition]]
+      END
+      
+      // Returns the length of the number
+      RESULT nLemmeLength
+     type : 458752
+   -
+     name : LemmeAnalyzeDecimalNumber
+     internal_properties : CAAAAAgAAADO4ZOhpNBpXtG6fWZUoCsgc1bTI1HUEErBdBcu32FG9B7MkB5hhKc9lB1UAfo5A/X/MABifKJ5NHYXrD52JNq2ncS1IWpExnJrwAK12QpXvdQ22/ZJfThzsm1buMvZq4aG6Zt2eDjgN3jhsYGG8dbHQkRjP5JaMaoAc2+amS9F24yU9ZacdKrz4VCfHa2vX+DC/3gksHEkSCgJ0TbvZwFd0EBDNA==
+     procedure_id : 1607142161956335592
+     type_code : 12
+     code : |1-
+      // Summary: Extracts a decimal number
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyzeDecimalNumber (<bufLemme> is buffer [, <bDecimal> is boolean])
+      //
+      // Parameters:
+      //	bufLemme (buffer): Lemme to analyze
+      //	bDecimal (boolean - default value=1): True for a decimal number, False otherwise
+      // Return value:
+      // 	integer:    Length of the number
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyzeDecimalNumber(LOCAL bufLemme is buffer, LOCAL bDecimal is boolean = True)
+      
+      nLemmeLength is int = 0
+      nLemmePosition is int = 1
+      sCharacter 		is string 
+      
+      sCharacter = bufLemme[[nLemmePosition]]
+      
+      // As long as the character is numeric
+      WHILE :IsANumber(sCharacter)
+      	
+      	// Increases the length
+      	nLemmeLength ++; nLemmePosition ++
+      	
+      	// Next character
+      	sCharacter = bufLemme[[nLemmePosition]]
+      END
+      
+      // If the character is a . and if it is a decimal number
+      IF bufLemme[[nLemmePosition]] = "." _AND_ bDecimal THEN
+      	
+      	LOOP
+      		
+      		// Increases the length
+      		nLemmeLength ++; nLemmePosition ++
+      		
+      		// Next character
+      		sCharacter = bufLemme[[nLemmePosition]]
+      		
+      	// As long as the character is numeric
+      	TO DO WHILE :IsANumber(sCharacter)
+      END
+      
+      // Returns the length of the number
+      RESULT nLemmeLength
+     type : 458752
+   -
+     name : LemmeAnalyzeDelimitIdentifier
+     internal_properties : CAAAAAgAAAD+kaNR9AA5rgGKjbakEHvQ48ajkSkslIJxPMeuY8mSqN4c1C5RtNvlFB104S7Jt+FvmKTq7PLttMYvFH4ybIYSPfRJieKUOmqTEHq1/eLjSbwu0ZSj25bRLBuhVl3/cTjAy4EM0hbeLfKf37fAtzxJxN6xtWywf0BKIT0oA52jRRbuS+RmUngB05ZtU++lDbIyb+i0IMF0GPhZoWbfl1EtAHBzBA==
+     procedure_id : 1607142161956401128
+     type_code : 12
+     code : |1-
+      // Summary: Tries to extract a known language identifier
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyzeDelimitIdentifier (<bufLemme> is buffer [, <sIdentifier> is string])
+      //
+      // Parameters:
+      //	bufLemme (buffer): Lemme to analyze
+      //	sIdentifier (string): (output) Extracted identifier
+      // Return value:
+      // 	integer:   Length of the identifier
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyzeDelimitIdentifier(LOCAL bufLemme is buffer, sIdentifier is string = "")
+      
+      nLemmeLength	is int
+      bIsALetter	is boolean
+      bufBrowse		is buffer
+      
+      // The first character must be a letter or a known symbol
+      IF NOT (																	...
+      	(Asc("a") <= Asc(Lower(NoAccent(bufLemme[[1]]))) <= Asc("z")) 	...
+      	_OR_																...
+      	(bufLemme[[1]] IN ("_", "$", "#"))									...
+      	) THEN
+      	
+      	// This is not an identifier
+      	sIdentifier = ""
+      	RESULT 0
+      END
+      
+      // Rest of the lemme
+      bufBrowse 	= bufLemme[[2 TO]]
+      bIsALetter	= (Asc("a") <= Asc(Lower(NoAccent(bufBrowse[[1]]))) <= Asc("z"))
+      
+      // As long as the following characters are letters or digits
+      WHILE bIsALetter _OR_ :IsANumber(bufBrowse[[1]]) _OR_ bufBrowse[[1]] = "."
+      	
+      	IF bufBrowse[[1]] IN (".", ":") THEN
+      		IF NOT (Asc("a") <= Asc(Lower(NoAccent(bufBrowse[[2]]))) <= Asc("z")) THEN
+      			// A letter must be found after a . or a : otherwise it is not an identifier
+      			BREAK
+      		END
+      	END
+      	
+      	// Rest of the lemme
+      	bufBrowse 	= bufBrowse[[2 TO]]
+      	bIsALetter	= (Asc("a") <= Asc(Lower(NoAccent(bufBrowse[[1]]))) <= Asc("z"))
+      END
+      
+      // Allows _ $ or # at the end of string
+      IF bufBrowse[[1]] IN ("_", "$", "#") THEN
+      	
+      	// Rest of the lemme
+      	bufBrowse 	= bufBrowse[[2 TO]]
+      END
+      
+      // Defines the size of the identifier
+      nLemmeLength = Length(bufLemme) - Length(bufBrowse)
+      
+      // Extracts the identifier
+      sIdentifier = bufLemme[[TO nLemmeLength]]
+      
+      // Returns the length of the identifier
+      RESULT nLemmeLength
+     type : 458752
+   -
+     name : LemmeAnalyzeIdentifier
+     internal_properties : CAAAAAgAAADO4ZOhpNBpXtG6fWZUoCsgc1bTI9HUEErBdBcu32FG9B7MkB5hhKc9lB1UAfo5A/X/MABifKJ5NHYXrD52JNq2ncS1IWpExnJrwAK12QpXvdQ2W3bJ/bjzMu3bOEtZKwYGaRv2+Lhgt/hhMQEGcVZHwsTjvxLasSqA8+8aGa/FWwwUdRYc9CpzYdAfnS0v3+DC/3gksHEkSCgJ0TbvZwFd0EBDNA==
+     procedure_id : 1607142161956466664
+     type_code : 12
+     code : |1-
+      // Summary: Analyzes a lemme to extract a language element
+      // Syntax:
+      //[ <Result> = ] LemmeAnalyzeIdentifier (<bufLemme> is buffer)
+      //
+      // Parameters:
+      //	bufLemme (buffer): Lemme to analyze
+      // Return value:
+      // 	integer:    Length of the extracted element
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeAnalyzeIdentifier(LOCAL bufLemme is buffer)
+      
+      sIdentifier 		 is string
+      nLemmeLength		 is int
+      nLengthIdentifier is int
+      nStructure			 is int
+      arrElements			 is array of 0 strings
+      
+      // Defines the length of the identifier
+      nLemmeLength = :LemmeAnalyzeDelimitIdentifier(NoAccent(bufLemme), sIdentifier)
+      IF nLemmeLength = 0 THEN
+      	
+      	// No identifier, process as a symbol of the language
+      	:MarkerAdd(::MARK_LANG_SYMBOL, 1)
+      	RESULT 1
+      END
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Process the language
+      
+      // Keywords
+      nStructure = ArraySeek(:m_arrLanguage, asLinear, "nMarker", ::MARK_LANG_KEYWORD)
+      IF nStructure > 0 THEN
+      	
+      	// Retrieves the elements
+      	ArrayCopy(:m_arrLanguage[nStructure]:arrElements, arrElements)
+      	
+      	// Processes the identifier
+      	nLengthIdentifier = :LemmeProcessIdentifier(sIdentifier, nLemmeLength, arrElements, ::MARK_LANG_KEYWORD)
+      	
+      	// If the identifier was processed
+      	IF nLengthIdentifier > 0 THEN
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      END
+      
+      // Constants
+      nStructure = ArraySeek(:m_arrLanguage, asLinear, "nMarker", ::MARK_LANG_CONSTANT)
+      IF nStructure > 0 THEN
+      	
+      	// Retrieves the elements
+      	ArrayCopy(:m_arrLanguage[nStructure]:arrElements, arrElements)
+      	
+      	// Processes the identifier
+      	nLengthIdentifier = :LemmeProcessIdentifier(sIdentifier, nLemmeLength, arrElements, ::MARK_LANG_CONSTANT)
+      	
+      	// If the identifier was processed
+      	IF nLengthIdentifier > 0 THEN
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      END
+      
+      // Functions
+      nStructure = ArraySeek(:m_arrLanguage, asLinear, "nMarker", ::MARK_LANG_FUNCTION)
+      IF nStructure > 0 THEN
+      	
+      	// Retrieves the elements
+      	ArrayCopy(:m_arrLanguage[nStructure]:arrElements, arrElements)
+      	
+      	// Processes the identifier
+      	nLengthIdentifier = :LemmeProcessIdentifier(sIdentifier, nLemmeLength, arrElements, ::MARK_LANG_FUNCTION)
+      	
+      	// If the identifier was processed
+      	IF nLengthIdentifier > 0 THEN
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      END
+      
+      // Variables, internal elements
+      nStructure = ArraySeek(:m_arrLanguage, asLinear, "nMarker", ::MARK_LANG_VARIABLE)
+      IF nStructure > 0 THEN
+      	
+      	// Retrieves the elements
+      	ArrayCopy(:m_arrLanguage[nStructure]:arrElements, arrElements)
+      	
+      	// Processes the identifier
+      	nLengthIdentifier = :LemmeProcessIdentifier(sIdentifier, nLemmeLength, arrElements, ::MARK_LANG_VARIABLE)
+      	
+      	// If the identifier was processed
+      	IF nLengthIdentifier > 0 THEN
+      		
+      		// Returns the length
+      		RESULT nLemmeLength
+      	END
+      END
+      
+      // Returns the length of the identifier
+      RESULT nLemmeLength
+     type : 458752
+   -
+     name : LemmeProcessIdentifier
+     procedure_id : 1607142161956532200
+     type_code : 12
+     code : |1-
+      // Summary: Processes an identifier of the language
+      // Syntax:
+      //[ <Result> = ] LemmeProcessIdentifier (<sIdentifier> is string, <nLength> is int, <arrElrments>, <nMarker> is int)
+      //
+      // Parameters:
+      //	sIdentifier (string): Identifier to process
+      //	nLength (integer): Length of the identifier
+      //	arrElements: List of language elements for comparison
+      //	nMarker (integer): Type of element to compare
+      // Return value:
+      // 	integer:   Length of the known identifier
+      //
+      PROCEDURE PROTECTED VIRTUAL LemmeProcessIdentifier(sIdentifier is string, LOCAL nLength is int, LOCAL arrElements, LOCAL nMarker is int)
+      
+      // For each element
+      FOR i = 1 _TO_ arrElements..Occurrence
+      	
+      	// Checks whether the element is known
+      	IF StringFormat(sIdentifier, ccIgnoreAccent+ccLowCase) = StringFormat(arrElements[i], ccIgnoreAccent+ccLowCase) THEN
+      		
+      		// Keeps the known identifier
+      		sIdentifier = arrElements[i]
+      		
+      		// Adds the marker
+      		:MarkerAdd(nMarker, nLength, arrElements[i])
+      		
+      		// Returns the length
+      		RESULT nLength
+      	END		
+      END
+      
+      RESULT 0
+     type : 458752
+   -
+     name : SetOutputMode
+     procedure_id : 1607142161956597736
+     type_code : 12
+     code : |1-
+      // Summary: Defines the output mode
+      // Syntax:
+      //SetOutputMode (<nMode> is int)
+      //
+      // Parameters:
+      //	nMode (integer): Output mode (OUT_GXX, OUT_HTML, OUT_RTF)
+      // Return value:
+      // 	None
+      //
+      PROCEDURE SetOutputMode(LOCAL nMode is int)
+      
+      IF nMode IN (::OUT_GXX, ::OUT_HTML, ::OUT_RTF) THEN
+      	
+      	// Keeps the output mode
+      	:m_nOutput = nMode
+      END
+      
+      // Defines the coloring headers and footers
+      :GenerateHeaderFooter()
+     type : 458752
+   -
+     name : GetOutputMode
+     procedure_id : 1607142161956663272
+     type_code : 12
+     code : |1-
+      // Summary: Returns the current output mode
+      // Syntax:
+      //[ <Result> = ] GetOutputMode ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	integer: Output mode (OUT_GXX, OUT_HTML, OUT_RTF)
+      //
+      PROCEDURE GetOutputMode()
+      
+      RESULT :m_nOutput
+     type : 458752
+   -
+     name : ConversionMarker
+     internal_properties : CAAAAAgAAAACegZEC2aykFXux+G3Aas+rdgfmQG4nD3drCZFMcyG28iG48Lp8bWNOmdAxQWySWgNcDYjlypm19gpOhLpJDKKLHj1CGqFaQ7xsjCsQH0l2ymoCTLznGieX/kZb4pybO221KlPdCKe5cC0ZJG22Z1WQ4joAT62xY66tqriPZNoz8n6eqJa+uuqo6M+oGsxDQiqXiUYLHUTn6H1pEzza/TLeywOg8k+vYqumZPTZQwyjMP1n/wHlR/6PnAZYPnIcAVn2o4qNQq5C81n
+     procedure_id : 1607142161956728808
+     type_code : 12
+     code : |1-
+      // Summary: Converts a marker
+      // Syntax:
+      //[ <Result> = ] MarkerConversion (<stMarker> is MARKER [, <bStart> is boolean])
+      //
+      // Parameters:
+      //	stMarker (MARKER): Marker to convert
+      //	bStart (boolean - default value=1): True for a beginning of marker, False otherwise
+      // Return value:
+      // 	buffer:   Converted marker
+      //
+      PROCEDURE PROTECTED VIRTUAL ConversionMarker(LOCAL stMarker is a Marker, LOCAL bBeginning is boolean = True)
+      
+      bufConversion 		is buffer
+      arrConversionStart 	is ASSOCIATIVE ARRAY (*, *, wlInt) of strings
+      arrConversionEnd 	is ASSOCIATIVE ARRAY (*, *, wlInt) of strings
+      
+      // According to the output mode
+      SWITCH :m_nOutput
+      
+      	// gXX output
+      	CASE ::OUT_GXX
+      		
+      		// Conversion table
+      		arrConversionStart[::MARK_STRING]			= :StyleToGXX(:S_STRING)		; arrConversionEnd[::MARK_STRING]			= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_COMMENT]		= :StyleToGXX(:S_COMMENT)	; arrConversionEnd[::MARK_COMMENT]		= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_ERROR]			= :StyleToGXX(:S_ERROR)		; arrConversionEnd[::MARK_ERROR]			= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_CONSTANT]	= :StyleToGXX(:S_CONSTANT)	; arrConversionEnd[::MARK_LANG_CONSTANT]	= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_FUNCTION]	= :StyleToGXX(:S_FUNCTION)	; arrConversionEnd[::MARK_LANG_FUNCTION]	= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_KEYWORD]		= :StyleToGXX(:S_KEYWORD)		; arrConversionEnd[::MARK_LANG_KEYWORD]		= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_PROPERTY]	= :StyleToGXX(:S_PROPERTY)	; arrConversionEnd[::MARK_LANG_PROPERTY]	= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_SYMBOL]		= :StyleToGXX(:S_SYMBOL)		; arrConversionEnd[::MARK_LANG_SYMBOL]		= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_LANG_VARIABLE]	= :StyleToGXX(:S_VARIABLE)	; arrConversionEnd[::MARK_LANG_VARIABLE]	= :StyleToGXX(:S_DEFAULT)
+      		arrConversionStart[::MARK_NUMERIC]		= :StyleToGXX(:S_NUMERIC)	; arrConversionEnd[::MARK_NUMERIC]		= :StyleToGXX(:S_DEFAULT)
+      		
+      	// HTML output
+      	CASE ::OUT_HTML
+      		
+      		// Conversion table
+      		arrConversionStart[::MARK_STRING]			= "<font class=String>"		; arrConversionEnd[::MARK_STRING]			= "</font>"
+      		arrConversionStart[::MARK_COMMENT]		= "<font class=Comment>"		; arrConversionEnd[::MARK_COMMENT]		= "</font>"
+      		arrConversionStart[::MARK_ERROR]			= "<font class=Error>"			; arrConversionEnd[::MARK_ERROR]			= "</font>"
+      		arrConversionStart[::MARK_LANG_CONSTANT]	= "<font class=Constant>"		; arrConversionEnd[::MARK_LANG_CONSTANT]	= "</font>"
+      		arrConversionStart[::MARK_LANG_FUNCTION]	= "<font class=Function>"		; arrConversionEnd[::MARK_LANG_FUNCTION]	= "</font>"
+      		arrConversionStart[::MARK_LANG_KEYWORD]		= "<font class=Keyword>"		; arrConversionEnd[::MARK_LANG_KEYWORD]		= "</font>"
+      		arrConversionStart[::MARK_LANG_PROPERTY]	= "<font class=Property>"		; arrConversionEnd[::MARK_LANG_PROPERTY]	= "</font>"
+      		arrConversionStart[::MARK_LANG_SYMBOL]		= "<font class=Symbol>"		; arrConversionEnd[::MARK_LANG_SYMBOL]		= "</font>"
+      		arrConversionStart[::MARK_LANG_VARIABLE]	= "<font class=Variable>"		; arrConversionEnd[::MARK_LANG_VARIABLE]	= "</font>"
+      		arrConversionStart[::MARK_NUMERIC]		= "<font class=Number>"		; arrConversionEnd[::MARK_NUMERIC]		= "</font>"			
+      		
+      	// RTF output
+      	CASE ::OUT_RTF
+      		
+      		// 1: string
+      		// 2: comment
+      		// 3: error
+      		// 4: constant
+      		// 5: function
+      		// 6: keyword
+      		// 7: property
+      		// 8: symbol
+      		// 9: variable
+      		// 10: numeric
+      		// 11: default
+      		
+      		// Conversion table
+      		arrConversionStart[::MARK_STRING]			= :StyleToRTF(1, :S_STRING, "", True, False)		; arrConversionEnd[::MARK_STRING]			= :StyleToRTF(11, :S_STRING, "", True, True)
+      		arrConversionStart[::MARK_COMMENT]		= :StyleToRTF(2, :S_COMMENT, "", True, False)	; arrConversionEnd[::MARK_COMMENT]		= :StyleToRTF(11, :S_COMMENT, "", True, True)
+      		arrConversionStart[::MARK_ERROR]			= :StyleToRTF(3, :S_ERROR, "", True, False)		; arrConversionEnd[::MARK_ERROR]			= :StyleToRTF(11, :S_ERROR, "", True, True)
+      		arrConversionStart[::MARK_LANG_CONSTANT]	= :StyleToRTF(4, :S_CONSTANT, "", True, False)		; arrConversionEnd[::MARK_LANG_CONSTANT]	= :StyleToRTF(11, :S_CONSTANT, "", True, True)
+      		arrConversionStart[::MARK_LANG_FUNCTION]	= :StyleToRTF(5, :S_FUNCTION, "", True, False)		; arrConversionEnd[::MARK_LANG_FUNCTION]	= :StyleToRTF(11, :S_FUNCTION, "", True, True)
+      		arrConversionStart[::MARK_LANG_KEYWORD]		= :StyleToRTF(6, :S_KEYWORD, "", True, False)		; arrConversionEnd[::MARK_LANG_KEYWORD]		= :StyleToRTF(11, :S_KEYWORD, "", True, True)
+      		arrConversionStart[::MARK_LANG_PROPERTY]	= :StyleToRTF(7, :S_PROPERTY, "", True, False)		; arrConversionEnd[::MARK_LANG_PROPERTY]	= :StyleToRTF(11, :S_PROPERTY, "", True, True)
+      		arrConversionStart[::MARK_LANG_SYMBOL]		= :StyleToRTF(8, :S_SYMBOL, "", True, False)		; arrConversionEnd[::MARK_LANG_SYMBOL]		= :StyleToRTF(11, :S_SYMBOL, "", True, True)
+      		arrConversionStart[::MARK_LANG_VARIABLE]	= :StyleToRTF(9, :S_VARIABLE, "", True, False)		; arrConversionEnd[::MARK_LANG_VARIABLE]	= :StyleToRTF(11, :S_VARIABLE, "", True, True)
+      		arrConversionStart[::MARK_NUMERIC]		= :StyleToRTF(10, :S_NUMERIC, "", True, False)	; arrConversionEnd[::MARK_NUMERIC]		= :StyleToRTF(11, :S_NUMERIC, "", True, True)
+      		
+      END
+      
+      // Actual conversion 
+      IF bBeginning THEN
+      	bufConversion = arrConversionStart[stMarker:nMarker]
+      ELSE
+      	bufConversion = arrConversionEnd[stMarker:nMarker]
+      END
+      
+      RESULT bufConversion
+     type : 458752
+   -
+     name : GenerateHeaderFooter
+     internal_properties : CAAAAAgAAADDVvWHz9fDQHf716/Iiyza2JedykwfSm/pkB9pA30vpzOm5Ba0reuGu22+pXw8Yz8G4y9rQpnnlUYCaA8nQVQsVWsYPq+9knAMDR7v1e/+r4AldCgTmyH2jparegr+7aIPB0pqSzF1B9QKLqAc3nKeSGoyE9gwnu+4bh66iCQywqYlb/Gpl2EWGOqXK5IXfecg8bKjG0Eqw6rWy6odSSFhIQg4+IuwWDV8OVNVX6OX+yEJq0KZLpDPnZ9PCjNer/wt3oSI/DJVOCfoCEY2c4YCsK8JBV9mY7Db+IUc+IWLv5aS
+     procedure_id : 1607142161956794344
+     type_code : 12
+     code : |1-
+      // Summary: Generates the header and the footer of a colored code
+      // Syntax:
+      //GenerateHeaderFooter ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	None
+      //
+      PROCEDURE PROTECTED VIRTUAL GenerateHeaderFooter()
+      
+      sStyles 	is string
+      sColors	is string
+      
+      SWITCH :m_nOutput
+      
+      	// gXX format
+      	CASE ::OUT_GXX
+      		
+      		:HEADER = :StyleToGXX(:S_DEFAULT)
+      		:FOOTER	= ""
+      		
+      	// HTML format
+      	CASE ::OUT_HTML
+      		
+      		// Generates the CSS styles		
+      		sStyles = :StyleToCSS(:S_STRING, 			"String") 		+
+      		:StyleToCSS(:S_COMMENT, 	"Comment") 	+
+      		:StyleToCSS(:S_ERROR, 		"Error") 		+
+      		:StyleToCSS(:S_CONSTANT, 	"Constant") 	+
+      		:StyleToCSS(:S_FUNCTION, 		"Function") 	+
+      		:StyleToCSS(:S_KEYWORD, 		"Keyword") 	+
+      		:StyleToCSS(:S_PROPERTY, 	"Property") 	+	
+      		:StyleToCSS(:S_SYMBOL, 		"Symbol") 	+
+      		:StyleToCSS(:S_VARIABLE, 		"Variable") 	+
+      		:StyleToCSS(:S_NUMERIC, 	"Number")
+      		
+      		:HEADER = StringBuild([
+      			<style type=text/css>
+      			%1
+      			</style>
+      			<div style=%2>
+      			
+      		], sStyles, :StyleToCSS(:S_DEFAULT))
+      		
+      		:FOOTER = [
+      			</div>
+      		]
+      		
+      	// RTF format	
+      	CASE ::OUT_RTF
+      		
+      		// Generates the CSS styles		
+      		sStyles =   :StyleToRTF(1, :S_STRING, 		sColors) 	+
+      		:StyleToRTF(2, :S_COMMENT, 	sColors) 	+
+      		:StyleToRTF(3, :S_ERROR, 		sColors) 	+
+      		:StyleToRTF(4, :S_CONSTANT, 		sColors) 	+
+      		:StyleToRTF(5, :S_FUNCTION, 		sColors) 	+
+      		:StyleToRTF(6, :S_KEYWORD, 		sColors) 	+
+      		:StyleToRTF(7, :S_PROPERTY, 		sColors) 	+	
+      		:StyleToRTF(8, :S_SYMBOL, 		sColors) 	+
+      		:StyleToRTF(9, :S_VARIABLE, 		sColors) 	+
+      		:StyleToRTF(10, :S_NUMERIC, 	sColors)	+
+      		:StyleToRTF(11, :S_DEFAULT,		sColors)
+      		
+      		// RTF header
+      		:HEADER = StringBuild([
+      			{\rtf1\ansi\ansicpg1252\deff0\deflang1036{\fonttbl%1}
+      			{\colortbl ;%2}
+      			\viewkind4\uc1\pard
+      		], sStyles, sColors) + :StyleToRTF(11, :S_DEFAULT, "", True, False) + CR
+      		
+      		// RTF footer
+      		:FOOTER = [
+      			}
+      		]
+      		
+      END
+     type : 458752
+   -
+     name : StyleToGXX
+     procedure_id : 1607142161956859880
+     type_code : 12
+     code : |1-
+      // Summary: Converting a style into gXX
+      // Syntax:
+      //[ <Result> = ] StyleToGXX (<stStyle> is STYLE)
+      //
+      // Parameters:
+      //	stStyle (STYLE): Style
+      // Return value:
+      // 	string:  gXX control string
+      //
+      PROCEDURE PRIVATE StyleToGXX(LOCAL stStyle is STYLE)
+      
+      sStyle is string
+      sStyle = gFont(stStyle:sFont) 			+ 
+      gFontSize(stStyle:nSize) 		+
+      gFontBold(stStyle:bBold) 			+
+      gFontItalic(stStyle:bItalic) 	+
+      gFontUnderlined(stStyle:bUnderlined) +
+      gPen(stStyle:nColor)
+      
+      RESULT sStyle
+     type : 458752
+   -
+     name : StyleToCSS
+     internal_properties : CAAAAAgAAABZ4qXyu2xdn6twPOb0qLNcBrB4g5zsABfFb3Ll0Qiny1S6bWAWbMI6oz+tG2W09APNKfV9hPCbc7SgL6YhsPn86/BJw8uWkMkNU8uE6gjGiWPYzBaGe8WvfKs1wD1Xm8ZIeznoNHQku5wVxa+65erb4HodiV6GV1DqcQseMY/VmeC6nRCw/D8+pSiVrGdtTmCcYBxKqKB+iCgJVFkAPpKKZmhr3D6hogCG4IrH1X9H2wQvNAM=
+     procedure_id : 1607142161956925416
+     type_code : 12
+     code : |1-
+      // Summary: Converting a style into CSS
+      // Syntax:
+      //[ <Result> = ] StyleToCSS (<stStyle> is STYLE [, <sName> is string])
+      //
+      // Parameters:
+      //	stStyle (STYLE): Style
+      //	sName (string): Name of the CSS style to generate
+      // Return value:
+      // 	string:       CSS style
+      //
+      PROCEDURE PRIVATE StyleToCSS(LOCAL stStyle is STYLE, LOCAL sName is string = "")
+      
+      // HTML color
+      sColor is string
+      sColor = NumToString(stStyle:nColor, "06x")
+      sColor[[5 TO 6]] <=> sColor[[1 TO 2]]
+      
+      sStyle is string
+      sStyle = (sName <> "" ? "." + sName + " {" ELSE """")			+ ...
+      "font-family: " 	+ stStyle:sFont + "; " 				+ ...
+      "font-size: "	+ stStyle:nSize + "pt; " 				+ ...
+      (stStyle:bBold 		? "font-weight: bold; " ELSE "")	+ ...
+      (stStyle:bItalic 	? "font-style: italic; " ELSE "")		+ ...
+      (stStyle:bUnderlined 	? "text-decoration: underline; " ELSE "text-decoration: none; ")	+ ...
+      "color: #" + sColor + ";" + ...
+      (sName <> "" ? "}" + CR ELSE """")
+      
+      RESULT sStyle
+     type : 458752
+   -
+     name : StyleToRTF
+     internal_properties : CAAAAAgAAAAescNwJFzJui+oufCCQi0K/WQBGgHcNCKxPKeOo0kyKD78dI5xFPvFFF2UwS6Jl6GPOETKzFJNVAavNF7yLGZSHdRpacK0GorTUJpVPaLDCRyOISQzSwZBPAvxJo2v4Yiw21GcYgbO3YIP70dw52xZdK6Bxfygb7DaUU34cw3TFca+WzS2Aiix44Y9458VLRoD8C297wKpj4O0Lvc6eGBOIBCTZA==
+     procedure_id : 1607142161956990952
+     type_code : 12
+     code : |1-
+      // Summary: Converting a style into RTF
+      // Syntax:
+      //[ <Result> = ] StyleToRTF (<nStyleNum> is int, <stStyle> is STYLE [, <sRTFColors> is string [, <bAttributes> is boolean [, <bCancelAttributes> is boolean]]])
+      //
+      // Parameters:
+      //	nStyleNum (integer): <specify the role of nStyleNum>
+      //	stStyle (STYLE): Style
+      //	sRTFColors (string): (output) List of colors to complete
+      //	bAttributes (boolean - default value=0): True to manage the RTF attributes only, False for a declaration
+      //	bCancelAttributes (boolean - default value=0): True to cancel the attributes that were previously generated, False otherwise
+      // Return value:
+      // 	string:        RTF style
+      //
+      PROCEDURE PRIVATE StyleToRTF(LOCAL nStyleNum is int, LOCAL stStyle is STYLE, sRTFColors is string = "", LOCAL bAttributes is boolean = False, LOCAL bCancelAttributes is boolean = False)
+      
+      sStyle is string
+      
+      // Intra-RTF style
+      IF bAttributes THEN
+      	
+      	
+      	IF bCancelAttributes = False THEN
+      		
+      		// Start of marking
+      		sStyle += "\cf" + nStyleNum + "\f" + nStyleNum 	+
+      		(stStyle:bItalic 	? "\i" ELSE "") 	+ 
+      		(stStyle:bBold 		? "\b" ELSE "") 	+ 
+      		(stStyle:bUnderlined 	? "\u1" ELSE "") +  "\fs" + (stStyle:nSize * 2) +
+      		" "
+      	ELSE
+      		
+      		// End of marking
+      		sStyle += "\cf" + nStyleNum + "\f" + nStyleNum 		+
+      		(stStyle:bUnderlined 	? "\u0" ELSE "") 	+ 
+      		(stStyle:bBold 		? "\b0" ELSE "") 	+ 
+      		(stStyle:bItalic 	? "\i0" ELSE "") 	+ 
+      		" "
+      		
+      	END
+      	
+      	// External styles
+      ELSE
+      	
+      	sStyle 			= "{\f" + nStyleNum + "\fmodern\fprq1\fcharset0 " + stStyle:sFont + ";}"		
+      	sRTFColors	+= "\red" + RGBRed(stStyle:nColor) + "\green" + RGBGreen(stStyle:nColor) + "\blue" + RGBBlue(stStyle:nColor) + ";"
+      END
+      
+      RESULT sStyle
+     type : 458752
+   -
+     name : SetLanguageFormatting
+     procedure_id : 1607142161957056488
+     type_code : 12
+     code : |1-
+      // Summary: Defines whether the language elements must be formatted like in the dictionary (case and accent)
+      // Syntax:
+      //SetLanguageFormatting (<bFormatLanguageElements> is boolean)
+      //
+      // Parameters:
+      //	bFormatLanguageElements (boolean): True to enable the formatting, False otherwise
+      // Return value:
+      // 	None
+      //
+      PROCEDURE SetLanguageFormatting(LOCAL bFormatLanguageElements is boolean)
+      
+      // Keeps the parameter
+      :m_bLanguageFormatting = bFormatLanguageElements
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x18858ff6002d9c0f
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ
